@@ -9,13 +9,19 @@ excel2csv
 
  Options
  -------
+
  sheet:Sheet1 - (required) set the sheet name to export.
+
  row:0        - the row number to start from
+
  col:0        - the columns number to start from
+
  fields:"name1,name2,name3" - if set the field names will be the first row of the csv file.
+
 
  Example:
  --------
- export2csv data.xlsx data.csv sheet:Sheet1 row:1 col:1
+
+     export2csv data.xlsx data.csv sheet:Sheet1 row:1 col:1
 
 also see 'export.bat' file for an example.
