@@ -29,11 +29,18 @@ func main() {
 		help()
 		return
 	}
-	os.Chdir(os.Getenv("=C:"))
+	//os.Chdir(os.Getenv("=C:"))
+	dir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Working Path: " + dir)
+
 	export := new(Export)
 	export.FromFile, _ = filepath.Abs(os.Args[1])
 	export.ToFile, _ = filepath.Abs(os.Args[2])
 	export.SheetName = "Sheet1"
+	fmt.Println("excel2csv v0.01")
 	for _, arg := range os.Args[3:] {
 		parse(export, arg)
 	}
@@ -65,6 +72,8 @@ func parse(export *Export, cmd string) {
 		export.StartCol = int(v)
 	case "fields":
 		export.FieldNames = strings.Split(kv[1], ",")
+	case "select":
+		export.ExcelColumns = strings.Split(kv[1], ",")
 	}
 }
 
@@ -80,6 +89,7 @@ func help() {
     row:0        - the row number to start from
     col:0        - the columns number to start from
     fields:"name1,name2,name3" - if set the field names will be the first row of the csv file.
+		select:"A,B,C" - if set exports only the select columns names.
 
     Example:
     --------
