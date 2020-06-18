@@ -72,7 +72,17 @@ func (export *Export) Export() {
 			// 	tablerow[coli] = cell.Value
 			// }
 			for coli := 0; coli < numberOfCols; coli++ {
-				tablerow[coli] = row.Cells[xlsx.ColLettersToIndex(export.ExcelColumns[coli])].Value
+				cell := row.Cells[xlsx.ColLettersToIndex(export.ExcelColumns[coli])]
+				if cell.IsTime() {
+					t1, err := cell.GetTime(false)
+					if err != nil {
+						tablerow[coli] = fmt.Sprint("%s", err)
+					} else {
+						tablerow[coli] = t1.Format("2006-01-02 15:04")
+					}
+				} else {
+					tablerow[coli] = cell.Value
+				}
 			}
 		}
 	}
