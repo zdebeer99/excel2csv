@@ -29,13 +29,6 @@ func main() {
 		help()
 		return
 	}
-	//os.Chdir(os.Getenv("=C:"))
-	dir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Working Path: " + dir)
-
 	export := new(Export)
 	export.FromFile, _ = filepath.Abs(os.Args[1])
 	export.ToFile, _ = filepath.Abs(os.Args[2])
