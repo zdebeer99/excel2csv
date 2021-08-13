@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/tealeg/xlsx"
+	"log"
 	"os"
+
+	"github.com/tealeg/xlsx"
 )
 
 type Export struct {
@@ -35,6 +37,11 @@ func (export *Export) Export() {
 	}
 
 	sheet := xlFile.Sheet[export.SheetName]
+	if sheet == nil {
+		log.Fatalf("Could not find sheet '%s' in excel workbook.", export.SheetName)
+		return
+	}
+
 	var table [][]string
 	var numberOfCols int
 	numberOfCols = 0
@@ -51,11 +58,17 @@ func (export *Export) Export() {
 		numberOfCols = len(export.ExcelColumns)
 		export.FieldNames = export.ExcelColumns
 	} else {
-		numberOfCols = 0
+		numberOfCols = len(sheet.Cols)
 	}
+
+	fmt.Println("Columns Found : ", numberOfCols)
+	fmt.Println("Excel Columns : ", len(sheet.Cols))
+
 	if len(export.FieldNames) != len(export.ExcelColumns) {
-		panic("Field names and excel columns must contain the same number of fields.")
+		log.Fatalln("Field names and excel columns must contain the same number of fields.")
+		return
 	}
+
 	for rowi, row := range sheet.Rows {
 		if rowi < export.StartRow {
 			continue
@@ -72,7 +85,15 @@ func (export *Export) Export() {
 			// 	tablerow[coli] = cell.Value
 			// }
 			for coli := 0; coli < numberOfCols; coli++ {
-				cell := row.Cells[xlsx.ColLettersToIndex(export.ExcelColumns[coli])]
+				cellIndex := coli
+				if len(export.ExcelColumns) > 0 {
+					cellIndex = xlsx.ColLettersToIndex(export.ExcelColumns[coli])
+				}
+				if cellIndex >= len(row.Cells) {
+					fmt.Printf("Row %v Column %v ignored, out of index rage %v, max columns %v \r\n", rowi+1, export.ExcelColumns[coli], cellIndex, len(row.Cells))
+					continue
+				}
+				cell := row.Cells[cellIndex]
 				if cell.IsTime() {
 					t1, err := cell.GetTime(false)
 					if err != nil {
